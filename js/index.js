@@ -1,21 +1,29 @@
+var bugzilla = bz.createClient();
+
+Handlebars.registerHelper("formatDate", function(bzDate) {
+  var _date = new Date(Date.parse(bzDate));
+  return _date.toLocaleString();
+});
+
 function render(bugs) {
   var source   = $("#table-template").html();
   var template = Handlebars.compile(source);
-
-  $('#content-wrap tbody').html(template({bugs: bugs}));
+  var _compiled = template({bugs: bugs});
+  $('#throbber').hide(function() {
+    $('#bug-count').html(bugs.length);
+    $('#label').show(function() {
+      $('#content-wrap tbody').html(_compiled);
+    });
+  });
 }
 
-function openSeq() {
+function openBugList() {
   $('#content-wrap tbody a').each(function() {
     window.open(this.href);
   });
 }
 
-
-
-$(function() {
-  var bugzilla = bz.createClient();
-
+function fetchBugs(callback) {
   var searchParams = {
       priority: '--',
       resolution: '---',
@@ -24,8 +32,21 @@ $(function() {
 
   bugzilla.searchBugs(searchParams, function(err, bugs) {
     if (err) throw err;
-    render(bugs);
+    callback(bugs);
   });
+}
 
-  $('#open-all').click(openSeq);
+function handleRefreshClick() {
+  $('#label').hide(200, function() {
+    $('#throbber').show();
+    fetchBugs(render);
+  });
+  $('#content-wrap tbody').html("")
+}
+
+$(function() {
+  $('#label').hide();
+  $('#open-all').click(openBugList);
+  $('#refresh-bugs').click(handleRefreshClick)
+  fetchBugs(render);
 });
