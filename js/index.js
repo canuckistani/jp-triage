@@ -17,12 +17,6 @@ function render(bugs) {
   });
 }
 
-function openBugList() {
-  $('#content-wrap tbody a').each(function() {
-    window.open(this.href);
-  });
-}
-
 function fetchBugs(callback) {
   var searchParams = {
       priority: '--',
@@ -45,8 +39,12 @@ function handleRefreshClick() {
 }
 
 $(function() {
-  $('#label').hide();
-  $('#open-all').click(openBugList);
+  // refresh button binding
   $('#refresh-bugs').click(handleRefreshClick)
-  fetchBugs(render);
+
+  // load the bugs
+  $('#label').hide(function() {
+    $('#throbber').show();
+    fetchBugs(render);
+  });
 });

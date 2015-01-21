@@ -1,3 +1,11 @@
-#throbber {
+#throbber, #label {
   display: none;
+}
+
+button {
+  color: #1C1E22;
+}
+
+.container h1 {
+  margin-left: -15px;
 }
